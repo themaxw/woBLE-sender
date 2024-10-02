@@ -45,11 +45,12 @@ float read_bat_voltage(){
     float measuredvbat = analogReadMilliVolts(BATT_MONITOR);
 	measuredvbat *= 2;    // we divided by 2, so multiply back
 	measuredvbat /= 1000; // convert to volts!
+	Serial.print(">v_bat:");
+	Serial.println(measuredvbat);
     return measuredvbat;
 
 	//TODO calculate battery charge from Vbat
-	// Serial.print("Battery Voltage: ");
-	// Serial.println(measuredvbat);
+
 }
 
 void loop() {
@@ -57,8 +58,6 @@ void loop() {
 
     motion.update_rotation();
 
-	rgb_led.setPixelColor(0, rgb_led.Color(rotation_to_color(message.rot_x), rotation_to_color(message.rot_y), rotation_to_color(message.rot_z)));
-	rgb_led.show();
 	if(millis() > timer + time_between_messages_ms){
     	motion.get_rotation(message.rot_x, message.rot_y, message.rot_z);
 
@@ -67,6 +66,23 @@ void loop() {
 		sender.send_message(message);
 		timer = millis();
 	}
+
+	if (read_bat_voltage() < 3.2f){
+		Serial.println("battery low, please charge now");
+		while(1){
+		rgb_led.setPixelColor(0, rgb_led.Color(100,0,0));
+		rgb_led.show();
+		delay(300);
+		rgb_led.setPixelColor(0, rgb_led.Color(0,0,0));
+		rgb_led.show();
+		delay(300);
+		}
+	} else {
+		rgb_led.setPixelColor(0, rgb_led.Color(rotation_to_color(message.rot_x), rotation_to_color(message.rot_y), rotation_to_color(message.rot_z)));
+		rgb_led.show();
+	}
+
+
 	int button_state = digitalRead(BUTTON);
 
 	if (button_state == LOW && prev_button_state == HIGH){
