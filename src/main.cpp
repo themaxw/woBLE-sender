@@ -9,7 +9,7 @@
 Adafruit_NeoPixel rgb_led(1, PIN_NEOPIXEL, NEO_GRB + NEO_KHZ800);
 
 unsigned long timer = 0;
-float time_between_messages_ms = 50;
+float time_between_messages_ms = 20;
 
 Message message;
 Motion motion;

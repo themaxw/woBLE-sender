@@ -13,20 +13,11 @@ Motion::Motion(){
 Motion::~Motion(){
 }
 
-Quaternion quat_inverse(Quaternion q){
-    float mag = q.getMagnitude();
-    Quaternion inverse = q.getConjugate();
-    float mag2 = mag * mag;
-    inverse.w /= mag2;
-    inverse.x /= mag2;
-    inverse.y /= mag2;
-    inverse.z /= mag2;
-    return inverse;
-}
 
-Quaternion rotate(Quaternion q1, Quaternion q2){
-    Quaternion q = q1.getProduct(q2);
-    return q.getProduct(quat_inverse(q1));
+// rotation has to be normalized
+Quaternion rotate(Quaternion rotation, Quaternion q2){
+    Quaternion q = rotation.getProduct(q2);
+    return q.getProduct(rotation.getConjugate());
 }
 
 
@@ -83,28 +74,31 @@ bool Motion::setup()
 void Motion::update_rotation(){
     if (mpu.dmpGetCurrentFIFOPacket(fifoBuffer)) {
         mpu.dmpGetQuaternion(&q, fifoBuffer);
-        // Quaternion q_rot = rotate(q, rotation_q);
-        // mpu.dmpGetEuler(euler, &q_rot);
-        mpu.dmpGetGravity(&gravity, &q);
-        mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
+        Quaternion q_rot = rotation_q.getProduct(q);
+        mpu.dmpGetEuler(euler, &q_rot);
+
     }
 }
 
 void Motion::reset(){
-    rotation_q = q.getNormalized(); 
+    rotation_q = q.getNormalized().getConjugate(); 
 
 }
 
 void Motion::get_rotation(float & rot_x, float & rot_y, float & rot_z){
-    rot_x = ypr[0];
-    rot_y = ypr[1];
-    rot_z = ypr[2];
+    rot_x = euler[0];
+    rot_y = euler[1];
+    rot_z = euler[2];
 }
 
 void Motion::print_quat(){
-	Serial.printf(">3D|pos:S:cube:H:1:W:1:D:2:Q:%f:%f:%f:%f\n", q.x, q.y, q.z, q.w);
-	Quaternion r = rotate(q, rotation_q);
-    Serial.printf(">3D|rot:S:cube:H:1:W:1:D:2:P:3:0:0:Q:%f:%f:%f:%f\n", r.x, r.y, r.z, r.w);
+	// Serial.printf(">3D|pos:S:cube:H:1:W:1:D:2:Q:%f:%f:%f:%f\n", q.x, q.y, q.z, q.w);
+	// Quaternion r = rotate( rotation_q, q);
+    // Serial.printf(">3D|rot:S:cube:H:1:W:1:D:2:P:3:0:0:Q:%f:%f:%f:%f\n", r.x, r.y, r.z, r.w);
+	// Quaternion i = rotation_q.getProduct(q);
+    // Serial.printf(">3D|inv:S:cube:H:1:W:1:D:2:P:-3:0:0:Q:%f:%f:%f:%f\n", i.x, i.y, i.z, i.w);
+
+
 
 }
 
