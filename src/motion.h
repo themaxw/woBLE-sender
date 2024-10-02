@@ -47,7 +47,7 @@ public:
     ~Motion();
     bool setup();
     void update_rotation();
-    void reset();
+    void reset_rotation();
     void get_rotation(float &rot_x, float &rot_y,float &rot_z);
     void print_quat();
 };

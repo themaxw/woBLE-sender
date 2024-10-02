@@ -71,7 +71,7 @@ void loop() {
 
 	if (button_state == LOW && prev_button_state == HIGH){
 		Serial.println("Resetting...");
-		motion.reset();
+		motion.reset_rotation();
 	}
 	prev_button_state = button_state;
  

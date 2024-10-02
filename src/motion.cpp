@@ -80,7 +80,7 @@ void Motion::update_rotation(){
     }
 }
 
-void Motion::reset(){
+void Motion::reset_rotation(){
     rotation_q = q.getNormalized().getConjugate(); 
 
 }
